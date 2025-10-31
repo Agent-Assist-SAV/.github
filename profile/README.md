@@ -25,6 +25,8 @@ Prototype d’assistant de réponse pour équipes SAV. Il propose des suggestion
 
 ## Tech stack
 
+![Architecture diagram](../doc/architecture.png)
+
 ### Frontend
 - React 18 + TypeScript — frontend framework  
 - Vite — build tool & dev server  
