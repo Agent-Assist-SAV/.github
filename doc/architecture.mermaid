@@ -1,0 +1,61 @@
+flowchart TB
+    subgraph K8s["Kubernetes Namespace"]
+        subgraph Ingress["Ingress Layer"]
+            IngFE["Frontend Ingress"]
+            IngBE["Backend Ingress"]
+        end
+        
+        subgraph Services["Services Layer"]
+            SvcFE["Frontend Service"]
+            SvcBE["Backend Service"]
+        end
+        
+        subgraph Deployments["Deployments"]
+            subgraph FEDeploy["Frontend Deployment"]
+                subgraph FEPod["NGINX Pod"]
+                    NGINX["NGINX Server"]
+                    StaticFiles["React Static Files"]
+                end
+            end
+            
+            subgraph BEDeploy["Backend Deployment"]
+                subgraph BEPod["Node.js Pod"]
+                    subgraph BE["Backend API (FastAPI)"]
+                        API["REST endpoints api"]
+                        SSE["SSE stream EventSource"]
+                        Sugg["Suggestion service"]
+                        Chat["Chat service"]
+                        Mem["In memory store"]
+                    end
+                end
+            end
+        end
+    end
+    
+    subgraph FE["Frontend SPA (React)"]
+        UI["Operator UI"]
+        Sim["Client simulator dev"]
+    end
+    
+    subgraph Cloud["Provider"]
+        OVH["OVHcloud AI LLM"]
+    end
+    
+    Agent["Agent browser"] --> IngFE
+    IngFE --> SvcFE
+    SvcFE --> NGINX
+    NGINX --> StaticFiles
+    StaticFiles --> UI
+    StaticFiles --> Sim
+    
+    UI -- Create chat and send agent message --> IngBE
+    Sim -- Send user message --> IngBE
+    IngBE --> SvcBE
+    SvcBE --> API
+    
+    API --> Chat
+    Chat --> Mem & Sugg
+    Sugg -- prompt --> OVH
+    OVH -- tokens --> Sugg
+    Sugg -. create .-> SSE
+    SSE -- stream response suggestions --> UI
